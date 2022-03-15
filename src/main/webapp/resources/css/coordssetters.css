@@ -1,0 +1,35 @@
+.setter {
+    margin: 0;
+    padding: 0;
+    width: 237px;
+    height: 125px;
+    transform: translate(0, -50%);
+    position: absolute;
+    left: 100px;
+
+    text-align: center;
+
+    /*background-color: yellow;*/
+}
+
+.coordinput {
+    top: 50%;
+    right: 0;
+    /*transform: translate(0, -50%);*/
+    position: absolute;
+    height: 39px;
+    width: 237px;
+}
+
+#x-setter {
+    top: 32%;
+}
+#y-setter {
+    top: calc(32% + 125px);
+}
+#r-setter {
+    top: calc(32% + 250px);
+}
+#submit-button {
+    top: calc(32% + 375px);
+}

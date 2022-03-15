@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:composition template="resources/templates/mainpage_template.xhtml">
+
+    <ui:define name="header">
+        <div id="header">Androsov Ivan P3210 (var. #10500)</div>
+    </ui:define>
+
+    <ui:define name="coords">
+        ${resultsCollection.readFromDatabase()}
+        <div id="coordsDiv" style="cursor: pointer;">
+            <div class="coord-radius" id="top">${currentPoint.r}</div>
+            <div class="coord-radius" id="middle-top">${currentPoint.r / 2}</div>
+            <div class="coord-radius" id="right">${currentPoint.r}</div>
+            <div class="coord-radius" id="middle-right">${currentPoint.r / 2}</div>
+            <div class="coord-radius" id="down">${-currentPoint.r}</div>
+            <div class="coord-radius" id="middle-down">${-currentPoint.r / 2}</div>
+            <div class="coord-radius" id="left">${-currentPoint.r}</div>
+            <div class="coord-radius" id="middle-left">${-currentPoint.r / 2}</div>
+
+            <div id="point" style="position: absolute;
+                width: 7px;
+                height: 7px;
+                background-color: black;
+                transform: translate(-50%, +50%);
+                bottom: ${currentPoint.pixelsOfY}px;
+                left: ${currentPoint.pixelsOfX}px;
+
+            ">
+            </div>
+
+            <h:outputText value="${resultsCollection.getPoints(currentPoint.r)}" escape="false"/>
+
+            <h:form id="hidden_form">
+                <p:inputText id="hidden_x" type="hidden" value="${currentPoint.x}"/>
+                <p:inputText id="hidden_y" type="hidden" value="${currentPoint.y}"/>
+                <p:remoteCommand name="myCommand"
+                                 actionListener="${resultsCollection.validateAndCheck(currentPoint.x, currentPoint.y, currentPoint.r)}"
+                                 style="display: none;" />
+            </h:form>
+            <h:outputScript>
+                function lololo() {
+                    document.getElementById('coordsDiv').onclick = function clickEvent(e) {
+                        let r = document.getElementById("form:r-inputtext").value;
+                        if(r > 0) {
+                            let rect = e.target.getBoundingClientRect();
+                            let x = e.clientX - rect.left;
+                            let y = e.clientY - rect.top;
+
+                            x = x / 500;
+                            y = y / 500;
+
+                            x = 2.5 * (x - 0.5);
+                            y = -2.5 * (y - 0.5);
+
+                            x *= r;
+                            y *= r;
+
+                            let hidden_x = document.getElementById("hidden_form:hidden_x");
+                            let hidden_y = document.getElementById("hidden_form:hidden_y");
+
+                            hidden_x.value = x;
+                            hidden_y.value = y;
+
+                            let hidden_form = document.getElementById("hidden_form");
+                            hidden_form.submit();
+
+                            myCommand();
+
+
+                            // let hidden_commandbutton = document.getElementById("hidden_form:hidden_commandbutton");
+                            // hidden_commandbutton.click();
+
+                            // alert("x = " + x + "   y = " + y);
+                        } else {
+                            alert("R must be grater than zero!");
+                        }
+                    }
+                }
+                setTimeout(lololo, 100);
+            </h:outputScript>
+        </div>
+    </ui:define>
+
+    <ui:define name="pointSetters">
+        <h:form id="form">
+            <div class="setter" id="x-setter">
+                <p id="xselecttext">Select x: </p>
+                <p:spinner style="position: absolute; right:0; text-align: left;" class="coordinput" id="x-spinner" min="-5" max="5" value="${currentPoint.x}"/>
+            </div>
+
+            <div class="setter" id="y-setter">
+                <p id="yselecttext">Select y: </p>
+
+                <p:inputText autocomplete="off" class="coordinput" id="y-inputtext" value="${currentPoint.y}">
+
+                </p:inputText>
+            </div>
+
+            <div class="setter" id="r-setter">
+                <p id="rselecttext">Select r: </p>
+                <p:inputText autocomplete="off" class="coordinput" name="r-inputtext" id="r-inputtext" value="${currentPoint.r}">
+
+                </p:inputText>
+            </div>
+
+            <div class="setter" id="submit-button">
+                <p:growl id="growl" showDetail="true" />
+
+                <p:commandButton style="width: 118px;
+                height: 40px;
+                background-color: yellow;
+                border-radius: 2px;
+                border-width: 1px;
+                color: black;
+                padding: 0;
+                margin: 0;"
+                    ajax="false"
+                    value="Check"
+                    action="${resultsCollection.validateAndCheck(currentPoint.x, currentPoint.y, currentPoint.r)}"/>
+            </div>
+
+            <p:commandButton style="width: 118px;
+                height: 40px;
+                background-color: yellow;
+                border-radius: 2px;
+                border-width: 1px;
+                color: black;
+                padding: 0;
+                margin: 0;
+                top: calc(32% + 250px);
+                position: absolute;
+                left: 350px;"
+                             value="Change R"
+                             ajax="false"/>
+        </h:form>
+    </ui:define>
+
+    <ui:define name="resultsTable">
+        <div id="resultsTable">
+            <table>
+                <tr>
+                    <td>X</td>
+                    <td>Y</td>
+                    <td>R</td>
+                    <td>HIT</td>
+                </tr>
+                <h:outputText value="${resultsCollection.resultsTable}" escape="false"/>
+            </table>
+        </div>
+    </ui:define>
+
+    <ui:define name="footer">
+        <div id="footer">
+            <h:form>
+                <h:commandLink id="mainpagelink" action="gohome">Go home</h:commandLink>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>
